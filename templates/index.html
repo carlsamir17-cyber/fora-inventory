@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Inventory & MRP - مصنع فورا</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin:0; background:#f5f5f5; }
+    .topbar { background:#111; color:#fff; padding:14px 18px; display:flex; justify-content:space-between; align-items:center; }
+    .container { padding:18px; }
+    .card { background:#fff; border-radius:10px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,.06); }
+    .row { display:flex; gap:14px; align-items:flex-end; flex-wrap:wrap; justify-content:flex-start; }
+    label { font-size:13px; color:#333; display:block; margin-bottom:6px; }
+    select, input { width:240px; max-width:100%; padding:10px 12px; border:1px solid #ddd; border-radius:8px; font-size:14px; background:#fff; }
+    button { padding:10px 14px; border:0; border-radius:10px; background:#111; color:#fff; cursor:pointer; font-size:14px; }
+    button:hover { opacity:.9; }
+    .error { background:#ffe9e9; border:1px solid #ffb9b9; padding:10px 12px; border-radius:8px; margin-bottom:12px; color:#a40000; }
+    .warn { background:#fff7da; border:1px solid #ffe08a; padding:10px 12px; border-radius:8px; margin-bottom:12px; color:#6a4a00; white-space:pre-line; }
+    table { width:100%; border-collapse:collapse; margin-top:14px; }
+    th, td { border-bottom:1px solid #eee; padding:10px; text-align:right; font-size:14px; vertical-align:top; }
+    th { background:#fafafa; position:sticky; top:0; }
+    .img { width:70px; height:70px; object-fit:cover; border-radius:8px; border:1px solid #eee; }
+    .muted { color:#777; font-size:13px; }
+    .small { font-size:12px; color:#666; }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div>Inventory & MRP - مصنع فورا</div>
+    <a href="/logout" style="color:#fff; text-decoration:none;">تسجيل خروج</a>
+  </div>
+
+  <div class="container">
+    <div class="card">
+
+      {% if error %}
+        <div class="error">{{ error }}</div>
+      {% endif %}
+
+      {# رسائل flash #}
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="warn">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST">
+        <div class="row">
+
+          <div>
+            <label>المنتج</label>
+            <select name="product" required>
+              <option value="">-- اختر المنتج --</option>
+
+              {% for p in products %}
+                <option value="{{ p }}" {% if p == selected_product %}selected{% endif %}>{{ p }}</option>
+              {% endfor %}
+            </select>
+
+            <div class="small">عدد المنتجات: {{ products|length }}</div>
+          </div>
+
+          <div>
+            <label>عدد الإنتاج (X)</label>
+            <input type="number" name="qty" min="1" value="{{ x_qty }}" />
+          </div>
+
+          <div>
+            <button type="submit">حساب احتياجات الإنتاج</button>
+          </div>
+
+        </div>
+      </form>
+
+      {% if rows and rows|length > 0 %}
+        <table>
+          <thead>
+            <tr>
+              <th>العنصر</th>
+              <th>الكمية المطلوبة</th>
+              <th>المخزون</th>
+              <th>الناقص</th>
+              <th>الحالة</th>
+              <th>المخزن</th>
+              <th>الدولاب</th>
+              <th>الرف</th>
+              <th>باليتة</th>
+              <th>الصورة</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in rows %}
+              <tr>
+                <td>{{ r["العنصر"] }}</td>
+                <td>{{ r["الكمية المطلوبة"] }}</td>
+                <td>{{ r["المخزون"] }}</td>
+                <td>{{ r["الناقص"] }}</td>
+                <td>{{ r["الحالة"] }}</td>
+                <td>{{ r["المخزن"] }}</td>
+                <td>{{ r["الدولاب"] }}</td>
+                <td>{{ r["الرف"] }}</td>
+                <td>{{ r["باليتة"] }}</td>
+                <td>
+                  {% if r["الصورة"] %}
+                    <img class="img" src="{{ r['الصورة'] }}" alt="img" referrerpolicy="no-referrer" />
+                  {% else %}
+                    <span class="muted">—</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="muted" style="margin-top:14px;">
+          اختر منتج ثم اضغط "حساب احتياجات الإنتاج" لعرض النتائج.
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+</body>
+</html>
